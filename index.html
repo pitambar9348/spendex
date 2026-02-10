@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expense Tracker | Sign In</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+
+  <div class="auth-container">
+    <div class="auth-card">
+
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button id="signin-tab" class="active" onclick="showSignIn()">Sign In</button>
+        <button id="signup-tab" onclick="showSignUp()">Sign Up</button>
+      </div>
+
+      <!-- SIGN IN -->
+      <div id="signin-form" class="auth-form">
+        <h2>Welcome Back</h2>
+
+        <input type="email" id="signin-email" placeholder="Email" autocomplete="email" />
+        <div class="password-field">
+          <input type="password" id="signin-password" placeholder="Password" autocomplete="current-password" />
+          <span class="toggle-password" onclick="togglePassword('signin-password', this)">👁️</span>
+        </div>
+
+        <button class="primary-btn" onclick="signIn()">Sign In</button>
+
+        <p class="forgot-password link-text">
+          <a href="#" onclick="forgotPassword(); return false;">Forgot password?</a>
+        </p>
+
+      </div>
+
+      <!-- SIGN UP -->
+      <div id="signup-form" class="auth-form hidden">
+        <h2>Create Account</h2>
+
+        <input type="text" id="signup-name" placeholder="Full Name" autocomplete="name" />
+        <input type="email" id="signup-email" placeholder="Email" autocomplete="email" />
+        <div class="password-field">
+          <input type="password" id="signup-password" placeholder="Password" autocomplete="new-password" />
+          <span class="toggle-password" onclick="togglePassword('signup-password', this)">👁️</span>
+        </div>
+
+        <button class="primary-btn" onclick="signUp()">Sign Up</button>
+
+      </div>
+
+    </div>
+  </div>
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- JS -->
+  <script src="js/supabase.js"></script>
+  <script src="js/toast.js"></script>
+  <script src="js/auth.js"></script>
+
+</body>
+
+</html>
