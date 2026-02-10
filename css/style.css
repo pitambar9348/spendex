@@ -114,6 +114,10 @@ body::after {
   max-width: 480px;
   background: var(--bg-elevated);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  position: relative;
+  z-index: 2;
   border: 1px solid var(--border);
   border-radius: 24px;
   padding: 3rem;
@@ -208,6 +212,7 @@ body::after {
   font-size: 15px;
   color: var(--text-primary);
   transition: var(--transition);
+  z-index: 3;
 }
 
 .auth-form input::placeholder {
@@ -264,6 +269,7 @@ body::after {
   box-shadow: var(--shadow-glow);
   position: relative;
   overflow: hidden;
+  z-indec: 3;
 }
 
 .primary-btn::before {
@@ -991,3 +997,4 @@ body::after {
   }
 
 }
+
