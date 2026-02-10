@@ -147,6 +147,7 @@ body::after {
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   opacity: 0.3;
+  pointer-events: none;
 }
 
 .auth-tabs {
@@ -988,4 +989,5 @@ body::after {
   .expense-card h2 {
     font-size: 24px;
   }
+
 }
