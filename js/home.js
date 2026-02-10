@@ -227,7 +227,7 @@ function renderExpensesTable(data) {
       <td data-label="Amount" class="${exp.amount >= 0 ? "amount-positive" : "amount-negative"}">
         ${exp.amount >= 0 ? '+' : '-'}₹${formattedAmount}
       </td>
-      <td data-label="Action">
+      <td>
         <button class="delete-btn" onclick="deleteTransaction('${exp.id}')" title="Delete transaction">
           🗑
         </button>
@@ -427,4 +427,5 @@ setInterval(() => {
   if (!isLoading && currentUser) {
     loadExpensesAndTotals();
   }
+
 }, 5 * 60 * 1000);
