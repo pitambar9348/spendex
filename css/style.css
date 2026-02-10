@@ -151,8 +151,10 @@ body::after {
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   opacity: 0.3;
-  pointer-events: none;
+
+  pointer-events: none; /* 🔥 THIS FIXES MOBILE */
 }
+
 
 .auth-tabs {
   display: flex;
@@ -921,8 +923,10 @@ body::after {
     padding: 1.5rem;
   }
 
+ 
   .auth-card {
-    padding: 2rem;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   .profile-header {
@@ -997,4 +1001,5 @@ body::after {
   }
 
 }
+
 
