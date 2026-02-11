@@ -207,10 +207,12 @@ async function signIn() {
 }
 
 // ============= FORGOT PASSWORD =============
+const FORGOT_COOLDOWN = 60; // seconds
 
 async function forgotPassword() {
   const emailInput = document.getElementById("signin-email");
   const email = emailInput.value.trim();
+  const link = document.getElementById("forgot-link");
 
   if (!email) {
     showToast("Please enter your email first", "error");
@@ -234,7 +236,20 @@ async function forgotPassword() {
     //   showToast("Something went wrong", "error");
     //   return;
     // }
+    const lastSent = localStorage.getItem("forgotCooldown");
+    const now = Date.now();
 
+    if (lastSent && now - lastSent < FORGOT_COOLDOWN * 1000) {
+      const remaining = Math.ceil(
+        (FORGOT_COOLDOWN * 1000 - (now - lastSent)) / 1000
+      );
+      showToast(`Please wait ${remaining}s before retrying`, "info");
+      return;
+    }
+
+    // 🔒 Disable link immediately
+    link.style.pointerEvents = "none";
+    link.style.opacity = "0.5";
 
     // 🔐 Step 2: Send reset email
     const { error: resetError } =
@@ -247,7 +262,21 @@ async function forgotPassword() {
       return;
     }
 
-    showToast("Password reset link sent!", "success");
+    showToast("If this email exists, a reset link has been sent", "success");
+
+    localStorage.setItem("forgotCooldown", Date.now());
+
+    // ⏳ Re-enable after cooldown
+    let remaining = FORGOT_COOLDOWN;
+    const interval = setInterval(() => {
+      remaining--;
+      if (remaining <= 0) {
+        clearInterval(interval);
+        link.style.pointerEvents = "auto";
+        link.style.opacity = "1";
+        localStorage.removeItem("forgotCooldown");
+      }
+    }, 1000);
 
   } catch (err) {
     console.error(err);
