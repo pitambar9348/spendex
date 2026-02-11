@@ -43,8 +43,14 @@ async function updatePassword() {
     return;
   }
 
-  if (password.length < 6) {
+  if (!validatePassword(password).valid) {
     showToast("Password must be at least 6 characters", "error");
+    passwordInput.focus();
+    return;
+  }
+  
+  if (password.length < 6) {
+    showToast("Weak password", "error");
     passwordInput.focus();
     return;
   }
@@ -90,7 +96,7 @@ async function updatePassword() {
 
 document.addEventListener("DOMContentLoaded", () => {
   const passwordInput = document.getElementById("new-password");
-  
+
   if (passwordInput) {
     passwordInput.addEventListener("keypress", (e) => {
       if (e.key === "Enter") {
