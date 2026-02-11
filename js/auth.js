@@ -254,7 +254,7 @@ async function forgotPassword() {
     // 🔐 Step 2: Send reset email
     const { error: resetError } =
       await supabaseClient.auth.resetPasswordForEmail(email, {
-        redirectTo: `https://guileless-horse-b8525b.netlify.app/reset-password.html`,
+        redirectTo: `${window.location.origin}/reset-password.html`,
       });
 
     if (resetError) {
@@ -315,4 +315,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-
