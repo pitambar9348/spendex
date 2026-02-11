@@ -57,7 +57,7 @@
         🔍 Filters
         <span id="filter-badge" class="filter-badge hidden">0</span>
       </button>
-      
+
       <div class="export-buttons">
         <button onclick="exportToCSV()" class="export-btn export-csv">
           📊 Export CSV
@@ -71,7 +71,7 @@
     <!-- FILTER SECTION -->
     <section class="filter-card hidden" id="filter-section">
       <h3>Filter Transactions</h3>
-      
+
       <div class="filter-grid">
         <div class="filter-group">
           <label for="filter-from-date">From Date</label>
@@ -88,82 +88,159 @@
           <select id="filter-category" onchange="handleFilterChange()">
             <option value="">All Categories</option>
 
-            <optgroup label="Food & Drinks">
-              <option>Groceries</option>
-              <option>Restaurant</option>
-              <option>Snacks</option>
-              <option>Coffee / Tea</option>
-              <option>Food Delivery</option>
+            <optgroup label="Income">
+              <option>Salary</option>
+              <option>Bonus</option>
+              <option>Business Profit</option>
+              <option>Freelance and Contract</option>
+              <option>Rental Income</option>
+              <option>Dividends and Interest</option>
+              <option>Gifts Received</option>
+              <option>Refunds</option>
+              <option>Sale of Items</option>
             </optgroup>
 
-            <optgroup label="Housing & Utilities">
-              <option>Rent</option>
+            <optgroup label="Food and Drinks">
+              <option>Groceries</option>
+              <option>Restaurant and Dining</option>
+              <option>Fast Food</option>
+              <option>Snacks</option>
+              <option>Coffee and Tea</option>
+              <option>Food Delivery</option>
+              <option>Alcohol and Bars</option>
+              <option>Dietary Supplements</option>
+            </optgroup>
+
+            <optgroup label="Housing and Utilities">
+              <option>Rent and Mortgage</option>
+              <option>Property Tax</option>
+              <option>Home Insurance</option>
               <option>Electricity</option>
               <option>Water</option>
-              <option>Gas</option>
-              <option>Internet</option>
+              <option>Gas and Heating</option>
+              <option>Internet and WiFi</option>
+              <option>Cable TV</option>
               <option>Mobile Recharge</option>
-              <option>Maintenance</option>
+              <option>Maintenance and Repairs</option>
+              <option>Furniture and Decor</option>
+              <option>Cleaning Services</option>
+              <option>HOA Fees</option>
+              <option>Garden and Lawn</option>
             </optgroup>
 
             <optgroup label="Transport">
               <option>Fuel</option>
-              <option>Public Transport</option>
-              <option>Cab / Taxi</option>
+              <option>Car Loan and Lease</option>
+              <option>Vehicle Insurance</option>
               <option>Vehicle Maintenance</option>
+              <option>Public Transport</option>
+              <option>Taxi and Cab</option>
               <option>Parking</option>
-              <option>Toll</option>
+              <option>Tolls</option>
+              <option>Car Wash</option>
+              <option>Registration Fees</option>
             </optgroup>
 
             <optgroup label="Shopping">
               <option>Clothing</option>
               <option>Footwear</option>
               <option>Accessories</option>
-              <option>Online Shopping</option>
               <option>Electronics</option>
+              <option>Beauty and Cosmetics</option>
+              <option>Jewelry</option>
+              <option>Sporting Goods</option>
+              <option>Hobbies</option>
+              <option>Online Shopping</option>
             </optgroup>
 
-            <optgroup label="Health & Medical">
+            <optgroup label="Health and Medical">
               <option>Doctor</option>
-              <option>Medicines</option>
-              <option>Hospital</option>
+              <option>Dentist</option>
+              <option>Eye Care</option>
+              <option>Pharmacy</option>
+              <option>Hospital Bill</option>
               <option>Health Insurance</option>
-              <option>Gym</option>
+              <option>GYM</option>
+              <option>Mental Health</option>
+              <option>Wellness and Spa</option>
+            </optgroup>
+
+            <optgroup label="Family and Kids">
+              <option>Family</option>
+              <option>Childcare</option>
+              <option>School Fees</option>
+              <option>Tuition</option>
+              <option>School Supplies</option>
+              <option>Toys and Games</option>
+              <option>Baby Supplies</option>
+              <option>Child Support</option>
+              <option>Elder Care</option>
             </optgroup>
 
             <optgroup label="Education">
               <option>Books</option>
-              <option>Courses</option>
-              <option>Tuition</option>
-              <option>Online Learning</option>
+              <option>Online Courses</option>
+              <option>University Fees</option>
+              <option>Student Loan</option>
+              <option>Certifications</option>
+              <option>Seminars</option>
+            </optgroup>
+
+            <optgroup label="Tech and Subscription">
+              <option>Software</option>
+              <option>Mobile Apps</option>
+              <option>Cloud Storage</option>
+              <option>VPN and Antivirus</option>
+              <option>Hosting</option>
             </optgroup>
 
             <optgroup label="Entertainment">
               <option>Movies</option>
-              <option>OTT Subscription</option>
-              <option>Games</option>
+              <option>Streaming Subscription</option>
               <option>Music</option>
-              <option>Events</option>
-              <option>Travel</option>
+              <option>Video Games</option>
+              <option>Concerts and Events</option>
+              <option>Nightlife</option>
+              <option>Sports Matches</option>
+              <option>Lottery</option>
+            </optgroup>
+
+            <optgroup label="Travel">
+              <option>Flights</option>
+              <option>Hotels</option>
+              <option>Travel Food</option>
+              <option>Sightseeing</option>
+              <option>Visa Fees</option>
+              <option>Travel Insurance</option>
+              <option>Souvenirs</option>
             </optgroup>
 
             <optgroup label="Financial">
+              <option>Credit Card Payment</option>
               <option>EMI</option>
-              <option>Loan</option>
-              <option>Credit Card</option>
               <option>Bank Charges</option>
-              <option>Investment</option>
-              <option>Salary</option>
+              <option>Investments</option>
+              <option>Savings Transfer</option>
+              <option>Life Insurance</option>
+              <option>Income Tax</option>
+              <option>Fines</option>
+              <option>Legal Fees</option>
+              <option>Accounting Fees</option>
             </optgroup>
 
-            <optgroup label="Personal & Misc">
+            <optgroup label="Personal and Misc">
               <option>Personal Care</option>
               <option>Salon</option>
-              <option>Gifts</option>
+              <option>Laundry</option>
+              <option>Gifts Given</option>
               <option>Donations</option>
-              <option>Pets</option>
-              <option>Family</option>
-              <option>Emergency</option>
+              <option>Pet Food</option>
+              <option>Pet Medical</option>
+              <option>Religious Expenses</option>
+              <option>Office Supplies</option>
+              <option>Shipping</option>
+              <option>Lost Items</option>
+              <option>Emergency Fund</option>
               <option>Other</option>
             </optgroup>
           </select>
@@ -213,82 +290,159 @@
           <select id="expense-category">
             <option value="">Select category</option>
 
-            <optgroup label="Food & Drinks">
-              <option>Groceries</option>
-              <option>Restaurant</option>
-              <option>Snacks</option>
-              <option>Coffee / Tea</option>
-              <option>Food Delivery</option>
+            <optgroup label="Income">
+              <option>Salary</option>
+              <option>Bonus</option>
+              <option>Business Profit</option>
+              <option>Freelance and Contract</option>
+              <option>Rental Income</option>
+              <option>Dividends and Interest</option>
+              <option>Gifts Received</option>
+              <option>Refunds</option>
+              <option>Sale of Items</option>
             </optgroup>
 
-            <optgroup label="Housing & Utilities">
-              <option>Rent</option>
+            <optgroup label="Food and Drinks">
+              <option>Groceries</option>
+              <option>Restaurant and Dining</option>
+              <option>Fast Food</option>
+              <option>Snacks</option>
+              <option>Coffee and Tea</option>
+              <option>Food Delivery</option>
+              <option>Alcohol and Bars</option>
+              <option>Dietary Supplements</option>
+            </optgroup>
+
+            <optgroup label="Housing and Utilities">
+              <option>Rent and Mortgage</option>
+              <option>Property Tax</option>
+              <option>Home Insurance</option>
               <option>Electricity</option>
               <option>Water</option>
-              <option>Gas</option>
-              <option>Internet</option>
+              <option>Gas and Heating</option>
+              <option>Internet and WiFi</option>
+              <option>Cable TV</option>
               <option>Mobile Recharge</option>
-              <option>Maintenance</option>
+              <option>Maintenance and Repairs</option>
+              <option>Furniture and Decor</option>
+              <option>Cleaning Services</option>
+              <option>HOA Fees</option>
+              <option>Garden and Lawn</option>
             </optgroup>
 
             <optgroup label="Transport">
               <option>Fuel</option>
-              <option>Public Transport</option>
-              <option>Cab / Taxi</option>
+              <option>Car Loan and Lease</option>
+              <option>Vehicle Insurance</option>
               <option>Vehicle Maintenance</option>
+              <option>Public Transport</option>
+              <option>Taxi and Cab</option>
               <option>Parking</option>
-              <option>Toll</option>
+              <option>Tolls</option>
+              <option>Car Wash</option>
+              <option>Registration Fees</option>
             </optgroup>
 
             <optgroup label="Shopping">
               <option>Clothing</option>
               <option>Footwear</option>
               <option>Accessories</option>
-              <option>Online Shopping</option>
               <option>Electronics</option>
+              <option>Beauty and Cosmetics</option>
+              <option>Jewelry</option>
+              <option>Sporting Goods</option>
+              <option>Hobbies</option>
+              <option>Online Shopping</option>
             </optgroup>
 
-            <optgroup label="Health & Medical">
+            <optgroup label="Health and Medical">
               <option>Doctor</option>
-              <option>Medicines</option>
-              <option>Hospital</option>
+              <option>Dentist</option>
+              <option>Eye Care</option>
+              <option>Pharmacy</option>
+              <option>Hospital Bill</option>
               <option>Health Insurance</option>
-              <option>Gym</option>
+              <option>GYM</option>
+              <option>Mental Health</option>
+              <option>Wellness and Spa</option>
+            </optgroup>
+
+            <optgroup label="Family and Kids">
+              <option>Family</option>
+              <option>Childcare</option>
+              <option>School Fees</option>
+              <option>Tuition</option>
+              <option>School Supplies</option>
+              <option>Toys and Games</option>
+              <option>Baby Supplies</option>
+              <option>Child Support</option>
+              <option>Elder Care</option>
             </optgroup>
 
             <optgroup label="Education">
               <option>Books</option>
-              <option>Courses</option>
-              <option>Tuition</option>
-              <option>Online Learning</option>
+              <option>Online Courses</option>
+              <option>University Fees</option>
+              <option>Student Loan</option>
+              <option>Certifications</option>
+              <option>Seminars</option>
+            </optgroup>
+
+            <optgroup label="Tech and Subscription">
+              <option>Software</option>
+              <option>Mobile Apps</option>
+              <option>Cloud Storage</option>
+              <option>VPN and Antivirus</option>
+              <option>Hosting</option>
             </optgroup>
 
             <optgroup label="Entertainment">
               <option>Movies</option>
-              <option>OTT Subscription</option>
-              <option>Games</option>
+              <option>Streaming Subscription</option>
               <option>Music</option>
-              <option>Events</option>
-              <option>Travel</option>
+              <option>Video Games</option>
+              <option>Concerts and Events</option>
+              <option>Nightlife</option>
+              <option>Sports Matches</option>
+              <option>Lottery</option>
+            </optgroup>
+
+            <optgroup label="Travel">
+              <option>Flights</option>
+              <option>Hotels</option>
+              <option>Travel Food</option>
+              <option>Sightseeing</option>
+              <option>Visa Fees</option>
+              <option>Travel Insurance</option>
+              <option>Souvenirs</option>
             </optgroup>
 
             <optgroup label="Financial">
+              <option>Credit Card Payment</option>
               <option>EMI</option>
-              <option>Loan</option>
-              <option>Credit Card</option>
               <option>Bank Charges</option>
-              <option>Investment</option>
-              <option>Salary</option>
+              <option>Investments</option>
+              <option>Savings Transfer</option>
+              <option>Life Insurance</option>
+              <option>Income Tax</option>
+              <option>Fines</option>
+              <option>Legal Fees</option>
+              <option>Accounting Fees</option>
             </optgroup>
 
-            <optgroup label="Personal & Misc">
+            <optgroup label="Personal and Misc">
               <option>Personal Care</option>
               <option>Salon</option>
-              <option>Gifts</option>
+              <option>Laundry</option>
+              <option>Gifts Given</option>
               <option>Donations</option>
-              <option>Pets</option>
-              <option>Family</option>
-              <option>Emergency</option>
+              <option>Pet Food</option>
+              <option>Pet Medical</option>
+              <option>Religious Expenses</option>
+              <option>Office Supplies</option>
+              <option>Shipping</option>
+              <option>Lost Items</option>
+              <option>Emergency Fund</option>
               <option>Other</option>
             </optgroup>
           </select>
