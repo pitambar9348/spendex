@@ -70,7 +70,7 @@ async function signUp() {
   const emailInput = document.getElementById("signup-email");
   const passwordInput = document.getElementById("signup-password");
   const button = event.target;
-  
+
   const name = nameInput.value.trim();
   const email = emailInput.value.trim();
   const password = passwordInput.value;
@@ -128,9 +128,10 @@ async function signUp() {
       .from("profiles")
       .insert([{
         id: data.user.id,
-        name: name,
-        email: email
+        name: name,              // ✅ use input name
+        email: data.user.email
       }]);
+
 
     if (profileError) {
       console.error("Profile error:", profileError);
@@ -139,7 +140,7 @@ async function signUp() {
     }
 
     showToast("Account created successfully!", "success");
-    
+
     nameInput.value = "";
     emailInput.value = "";
     passwordInput.value = "";
@@ -160,7 +161,7 @@ async function signIn() {
   const emailInput = document.getElementById("signin-email");
   const passwordInput = document.getElementById("signin-password");
   const button = event.target;
-  
+
   const email = emailInput.value.trim();
   const password = passwordInput.value;
 
@@ -192,7 +193,7 @@ async function signIn() {
     }
 
     showToast("Sign in successful!", "success");
-    
+
     setTimeout(() => {
       window.location.href = "home.html";
     }, 500);
@@ -222,20 +223,24 @@ async function forgotPassword() {
   }
 
   try {
-    const { data } = await supabaseClient
-      .from("profiles")
-      .select("id")
-      .eq("email", email)
-      .maybeSingle();
+    // 🔍 Step 1: Check existence in profiles
+    // const { data, error } = await supabaseClient
+    //   .from("profiles")
+    //   .select("id")
+    //   .eq("email", email)
+    //   .maybeSingle();
 
-    if (!data) {
-      showToast("Email not registered", "error");
-      return;
-    }
+    // if (error) {
+    //   showToast("Something went wrong", "error");
+    //   return;
+    // }
 
-    const { error: resetError } = await supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password.html`
-    });
+
+    // 🔐 Step 2: Send reset email
+    const { error: resetError } =
+      await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password.html`,
+      });
 
     if (resetError) {
       showToast(resetError.message, "error");
@@ -244,18 +249,19 @@ async function forgotPassword() {
 
     showToast("Password reset link sent!", "success");
 
-  } catch (error) {
-    console.error("Forgot password error:", error);
+  } catch (err) {
+    console.error(err);
     showToast("Something went wrong", "error");
   }
 }
+
 
 // ============= ENTER KEY SUPPORT =============
 
 document.addEventListener("DOMContentLoaded", () => {
   const signinEmail = document.getElementById("signin-email");
   const signinPassword = document.getElementById("signin-password");
-  
+
   if (signinEmail && signinPassword) {
     [signinEmail, signinPassword].forEach(input => {
       input.addEventListener("keypress", (e) => {
