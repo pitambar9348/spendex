@@ -194,7 +194,13 @@ function updateCategorySelection() {
     display.textContent = `${selected.length} Categories Selected`;
   }
   
+  // Apply filters immediately
   applyFilters();
+  
+  // Show toast notification
+  if (selected.length > 0) {
+    showToast(`${selected.length} ${selected.length === 1 ? 'category' : 'categories'} selected`, "success");
+  }
 }
 
 function selectAllCategories() {
@@ -275,6 +281,7 @@ async function loadExpensesAndTotals() {
 function applyFilters() {
   let filtered = [...allExpenses];
 
+  // Filter by date range
   if (filters.fromDate) {
     const fromDate = new Date(filters.fromDate);
     fromDate.setHours(0, 0, 0, 0);
@@ -296,16 +303,27 @@ function applyFilters() {
     });
   }
 
+  // Filter by categories (multiple selection)
   if (filters.categories.length > 0) {
-    filtered = filtered.filter(exp => 
-      filters.categories.includes(exp.category)
-    );
+    filtered = filtered.filter(exp => {
+      // Check if expense category matches any selected category
+      return exp.category && filters.categories.includes(exp.category);
+    });
   }
 
   filteredExpenses = filtered;
   renderExpensesTable(filteredExpenses);
   updateTotals(filteredExpenses);
   updateFilterBadge();
+  
+  // Log for debugging
+  console.log('Applied filters:', {
+    fromDate: filters.fromDate,
+    toDate: filters.toDate,
+    categories: filters.categories,
+    totalExpenses: allExpenses.length,
+    filteredCount: filtered.length
+  });
 }
 
 function handleFilterChange() {
