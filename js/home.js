@@ -306,17 +306,22 @@ function applyFilters() {
   }
 
   // Filter by categories (multiple selection)
-  if (filters.categories.length > 0) {
+  // Filter by categories (multiple selection)
+if (filters.categories.length > 0) {
+  console.log("Selected Categories:", filters.categories);
+
   filtered = filtered.filter(exp => {
     if (!exp.category) return false;
-      // Trim + normalize comparison to avoid spacing / case issues
-    const expenseCategory = exp.category.trim().toLowerCase();
-  
-    return filters.categories.some(selected =>
-      expenseCategory === selected.trim().toLowerCase()
-      );
-    });
-  }
+
+    const expenseCategory = exp.category.toString().trim();
+    
+    const match = filters.categories.includes(expenseCategory);
+
+    console.log("Checking:", expenseCategory, "Match:", match);
+
+    return match;
+  });
+}
 
   filteredExpenses = filtered;
   renderExpensesTable(filteredExpenses);
@@ -1069,5 +1074,6 @@ setInterval(() => {
     loadExpensesAndTotals();
   }
 }, 5 * 60 * 1000);
+
 
 
