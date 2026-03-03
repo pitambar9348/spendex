@@ -127,10 +127,8 @@ loadUser();
 function initializeCategoryDropdown() {
   const optionsContainer = document.getElementById("category-options");
   
-  if (!optionsContainer) {
-    console.warn("Category options container not found, will initialize later");
-    return;
-  }
+  // Return silently if element doesn't exist yet - will be called again in DOMContentLoaded
+  if (!optionsContainer) return;
   
   let html = '';
   
