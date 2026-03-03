@@ -176,16 +176,21 @@ function closeCategoryDropdownOutside(e) {
 
 function updateCategorySelection() {
   const checkboxes = document.querySelectorAll("#category-options input[type='checkbox']");
+  
   const selected = Array.from(checkboxes)
     .filter(cb => cb.checked)
-    .map(cb => cb.value);
-  
-  filters.categories = selected;
-  
+    .map(cb => cb.value.trim());
+
+  // ✅ Force new reference (important)
+  filters = {
+    ...filters,
+    categories: selected
+  };
+
   // Update display text
   const display = document.getElementById("category-display");
-  if (!display) return; // Guard clause if element doesn't exist
-  
+  if (!display) return;
+
   if (selected.length === 0) {
     display.textContent = "All Categories";
   } else if (selected.length === 1) {
@@ -193,14 +198,11 @@ function updateCategorySelection() {
   } else {
     display.textContent = `${selected.length} Categories Selected`;
   }
-  
-  // Apply filters immediately
-  applyFilters();
-  
-  // Show toast notification
-  if (selected.length > 0) {
-    showToast(`${selected.length} ${selected.length === 1 ? 'category' : 'categories'} selected`, "success");
-  }
+
+  // ✅ Force apply
+  setTimeout(() => {
+    applyFilters();
+  }, 0);
 }
 
 function selectAllCategories() {
@@ -1067,4 +1069,5 @@ setInterval(() => {
     loadExpensesAndTotals();
   }
 }, 5 * 60 * 1000);
+
 
