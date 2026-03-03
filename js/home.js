@@ -179,13 +179,10 @@ function updateCategorySelection() {
   
   const selected = Array.from(checkboxes)
     .filter(cb => cb.checked)
-    .map(cb => cb.value.trim());
+    .map(cb => cb.value);
 
-  // ✅ Force new reference (important)
-  filters = {
-    ...filters,
-    categories: selected
-  };
+  // ✅ DO NOT recreate filters object
+  filters.categories = selected;
 
   // Update display text
   const display = document.getElementById("category-display");
@@ -199,11 +196,10 @@ function updateCategorySelection() {
     display.textContent = `${selected.length} Categories Selected`;
   }
 
-  // ✅ Force apply
-  setTimeout(() => {
-    applyFilters();
-  }, 0);
+  // ✅ Apply filters immediately (no timeout)
+  applyFilters();
 }
+
 
 function selectAllCategories() {
   const checkboxes = document.querySelectorAll("#category-options input[type='checkbox']");
@@ -281,41 +277,48 @@ async function loadExpensesAndTotals() {
 // ============= FILTER FUNCTIONALITY =============
 
 function applyFilters() {
-  if (!Array.isArray(allExpenses)) {
-    filteredExpenses = [];
+
+  if (!allExpenses || allExpenses.length === 0) {
     renderExpensesTable([]);
     updateTotals([]);
     return;
   }
 
-  let filtered = allExpenses.slice(); // safer copy
+  let filtered = [...allExpenses];
 
-  // DATE FILTER
+  // Date filter
   if (filters.fromDate) {
-    const from = new Date(filters.fromDate).setHours(0,0,0,0);
-    filtered = filtered.filter(exp =>
-      new Date(exp.expense_date).setHours(0,0,0,0) >= from
-    );
+    const from = new Date(filters.fromDate);
+    from.setHours(0, 0, 0, 0);
+
+    filtered = filtered.filter(exp => {
+      const d = new Date(exp.expense_date);
+      d.setHours(0, 0, 0, 0);
+      return d >= from;
+    });
   }
 
   if (filters.toDate) {
-    const to = new Date(filters.toDate).setHours(23,59,59,999);
-    filtered = filtered.filter(exp =>
-      new Date(exp.expense_date).getTime() <= to
-    );
+    const to = new Date(filters.toDate);
+    to.setHours(23, 59, 59, 999);
+
+    filtered = filtered.filter(exp => {
+      const d = new Date(exp.expense_date);
+      return d <= to;
+    });
   }
 
-  // ✅ CATEGORY FILTER (FINAL FIX)
+  // ✅ CATEGORY FILTER (Corrected Properly)
   if (filters.categories && filters.categories.length > 0) {
-    filtered = filtered.filter(exp =>
+    filtered = filtered.filter(exp => 
       exp.category && filters.categories.includes(exp.category)
     );
   }
 
   filteredExpenses = filtered;
 
-  renderExpensesTable(filtered);
-  updateTotals(filtered);
+  renderExpensesTable(filteredExpenses);
+  updateTotals(filteredExpenses);
   updateFilterBadge();
 }
 
@@ -1055,6 +1058,7 @@ setInterval(() => {
     loadExpensesAndTotals();
   }
 }, 5 * 60 * 1000);
+
 
 
 
