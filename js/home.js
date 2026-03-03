@@ -9,20 +9,7 @@ let isLoading = false;
 let filters = {
   fromDate: null,
   toDate: null,
-  categories: [] // Changed from single category to array
-};
-
-// Category list (matches HTML optgroups)
-const CATEGORIES = {
-  "Food & Drinks": ["Groceries", "Restaurant", "Snacks", "Coffee / Tea", "Food Delivery"],
-  "Housing & Utilities": ["Rent", "Electricity", "Water", "Gas", "Internet", "Mobile Recharge", "Maintenance"],
-  "Transport": ["Fuel", "Public Transport", "Cab / Taxi", "Vehicle Maintenance", "Parking", "Toll"],
-  "Shopping": ["Clothing", "Footwear", "Accessories", "Online Shopping", "Electronics"],
-  "Health & Medical": ["Doctor", "Medicines", "Hospital", "Health Insurance", "Gym"],
-  "Education": ["Books", "Courses", "Tuition", "Online Learning"],
-  "Entertainment": ["Movies", "OTT Subscription", "Games", "Music", "Events", "Travel"],
-  "Financial": ["EMI", "Loan", "Credit Card", "Bank Charges", "Investment"],
-  "Personal & Misc": ["Personal Care", "Salon", "Gifts", "Donations", "Pets", "Family", "Emergency", "Other"]
+  category: null
 };
 
 // ============= INITIALIZATION =============
@@ -56,9 +43,6 @@ async function loadUser() {
       ? `Welcome 👋 ${profile.name}` 
       : "Welcome 👋";
 
-    // Initialize category dropdown
-    initializeCategoryDropdown();
-
     await loadExpensesAndTotals();
 
   } catch (error) {
@@ -68,104 +52,6 @@ async function loadUser() {
 }
 
 loadUser();
-
-// ============= MULTI-SELECT CATEGORY DROPDOWN =============
-
-function initializeCategoryDropdown() {
-  const optionsContainer = document.getElementById("category-options");
-  
-  let html = '';
-  
-  Object.keys(CATEGORIES).forEach(group => {
-    html += `<div class="category-group">`;
-    html += `<div class="category-group-header">${group}</div>`;
-    
-    CATEGORIES[group].forEach(category => {
-      html += `
-        <label class="category-option">
-          <input type="checkbox" value="${category}" onchange="updateCategorySelection()">
-          <span>${category}</span>
-        </label>
-      `;
-    });
-    
-    html += `</div>`;
-  });
-  
-  optionsContainer.innerHTML = html;
-}
-
-function toggleCategoryDropdown() {
-  const dropdown = document.getElementById("category-dropdown");
-  dropdown.classList.toggle("hidden");
-  
-  // Close dropdown when clicking outside
-  if (!dropdown.classList.contains("hidden")) {
-    setTimeout(() => {
-      document.addEventListener("click", closeCategoryDropdownOutside);
-    }, 0);
-  } else {
-    document.removeEventListener("click", closeCategoryDropdownOutside);
-  }
-}
-
-function closeCategoryDropdownOutside(e) {
-  const dropdown = document.getElementById("category-dropdown");
-  const trigger = document.querySelector(".multi-select-trigger");
-  
-  if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
-    dropdown.classList.add("hidden");
-    document.removeEventListener("click", closeCategoryDropdownOutside);
-  }
-}
-
-function updateCategorySelection() {
-  const checkboxes = document.querySelectorAll("#category-options input[type='checkbox']");
-  const selected = Array.from(checkboxes)
-    .filter(cb => cb.checked)
-    .map(cb => cb.value);
-  
-  filters.categories = selected;
-  
-  // Update display text
-  const display = document.getElementById("category-display");
-  if (selected.length === 0) {
-    display.textContent = "All Categories";
-  } else if (selected.length === 1) {
-    display.textContent = selected[0];
-  } else {
-    display.textContent = `${selected.length} Categories Selected`;
-  }
-  
-  // Apply filters
-  applyFilters();
-}
-
-function selectAllCategories() {
-  const checkboxes = document.querySelectorAll("#category-options input[type='checkbox']");
-  checkboxes.forEach(cb => cb.checked = true);
-  updateCategorySelection();
-}
-
-function clearCategorySelection() {
-  const checkboxes = document.querySelectorAll("#category-options input[type='checkbox']");
-  checkboxes.forEach(cb => cb.checked = false);
-  updateCategorySelection();
-}
-
-function filterCategories() {
-  const searchTerm = document.getElementById("category-search").value.toLowerCase();
-  const options = document.querySelectorAll(".category-option");
-  
-  options.forEach(option => {
-    const text = option.textContent.toLowerCase();
-    if (text.includes(searchTerm)) {
-      option.style.display = "flex";
-    } else {
-      option.style.display = "none";
-    }
-  });
-}
 
 // ============= DATA LOADING =============
 
@@ -228,10 +114,10 @@ function applyFilters() {
     });
   }
 
-  // Filter by categories (multiple)
-  if (filters.categories.length > 0) {
+  // Filter by category (exact match)
+  if (filters.category && filters.category !== "") {
     filtered = filtered.filter(exp => 
-      filters.categories.includes(exp.category)
+      exp.category === filters.category
     );
   }
 
@@ -244,9 +130,11 @@ function applyFilters() {
 function handleFilterChange() {
   const fromDateInput = document.getElementById("filter-from-date");
   const toDateInput = document.getElementById("filter-to-date");
+  const categoryInput = document.getElementById("filter-category");
 
   filters.fromDate = fromDateInput.value || null;
   filters.toDate = toDateInput.value || null;
+  filters.category = categoryInput.value || null;
 
   // Validate date range
   if (filters.fromDate && filters.toDate) {
@@ -262,10 +150,10 @@ function handleFilterChange() {
   applyFilters();
   
   // Show toast with filter details
-  if (filters.fromDate || filters.toDate || filters.categories.length > 0) {
+  if (filters.fromDate || filters.toDate || filters.category) {
     let filterMsg = "Filters applied";
-    if (filters.categories.length > 0) {
-      filterMsg += ` - ${filters.categories.length} ${filters.categories.length === 1 ? 'category' : 'categories'}`;
+    if (filters.category) {
+      filterMsg += ` - ${filters.category}`;
     }
     showToast(filterMsg, "success");
   }
@@ -274,12 +162,12 @@ function handleFilterChange() {
 function clearFilters() {
   document.getElementById("filter-from-date").value = "";
   document.getElementById("filter-to-date").value = "";
-  clearCategorySelection();
+  document.getElementById("filter-category").value = "";
 
   filters = {
     fromDate: null,
     toDate: null,
-    categories: []
+    category: null
   };
 
   applyFilters();
@@ -288,15 +176,11 @@ function clearFilters() {
 
 function updateFilterBadge() {
   const badge = document.getElementById("filter-badge");
-  
-  // Badge might not exist if filter panel is closed and button was replaced
-  if (!badge) return;
-  
   let activeFilters = 0;
 
   if (filters.fromDate) activeFilters++;
   if (filters.toDate) activeFilters++;
-  if (filters.categories.length > 0) activeFilters++;
+  if (filters.category) activeFilters++;
 
   if (activeFilters > 0) {
     badge.innerText = activeFilters;
@@ -313,14 +197,8 @@ function toggleFilters() {
   filterSection.classList.toggle("hidden");
   
   if (filterSection.classList.contains("hidden")) {
-    // Restore the filter button with badge
-    const activeCount = (filters.fromDate ? 1 : 0) + (filters.toDate ? 1 : 0) + (filters.categories.length > 0 ? 1 : 0);
-    const badgeHidden = activeCount === 0 ? ' hidden' : '';
-    
-    filterBtn.innerHTML = `
-      🔍 Filters
-      <span id="filter-badge" class="filter-badge${badgeHidden}">${activeCount}</span>
-    `;
+    filterBtn.innerHTML = '🔍 Filters <span id="filter-badge" class="filter-badge hidden">0</span>';
+    updateFilterBadge(); // Restore badge
   } else {
     filterBtn.innerHTML = '✖ Close Filters';
   }
@@ -329,7 +207,7 @@ function toggleFilters() {
 // ============= EXPORT FUNCTIONALITY =============
 
 function exportToCSV() {
-  const dataToExport = filteredExpenses.length > 0 ? filteredExpenses : allExpenses;
+  const dataToExport = filteredExpenses.length > 0 ? filteredExpenses : "";
 
   if (dataToExport.length === 0) {
     showToast("No data to export", "error");
@@ -366,7 +244,7 @@ function exportToCSV() {
 }
 
 function exportToPDF() {
-  const dataToExport = filteredExpenses.length > 0 ? filteredExpenses : allExpenses;
+  const dataToExport = filteredExpenses.length > 0 ? filteredExpenses : "";
 
   if (dataToExport.length === 0) {
     showToast("No data to export", "error");
@@ -604,7 +482,7 @@ function exportToPDF() {
 }
 
 function getFiltersHTML() {
-  const hasFilters = filters.fromDate || filters.toDate || filters.categories.length > 0;
+  const hasFilters = filters.fromDate || filters.toDate || filters.category;
   
   if (!hasFilters) return '';
   
@@ -618,8 +496,8 @@ function getFiltersHTML() {
     filterText.push(`To Date: ${new Date(filters.toDate).toLocaleDateString('en-IN')}`);
   }
   
-  if (filters.categories.length > 0) {
-    filterText.push(`Categories: ${filters.categories.join(', ')}`);
+  if (filters.category) {
+    filterText.push(`Category: ${filters.category}`);
   }
   
   return `
@@ -739,7 +617,7 @@ function renderExpensesTable(data) {
   tbody.innerHTML = "";
 
   if (data.length === 0) {
-    const message = (filters.fromDate || filters.toDate || filters.categories.length > 0) 
+    const message = (filters.fromDate || filters.toDate || filters.category) 
       ? "No transactions found matching your filters"
       : "No transactions yet. Click 'Add Expense / Income' to get started!";
     
@@ -773,7 +651,7 @@ function renderExpensesTable(data) {
       <td data-label="Amount" class="${exp.amount >= 0 ? "amount-positive" : "amount-negative"}">
         ${exp.amount >= 0 ? '+' : '-'}₹${formattedAmount}
       </td>
-      <td data-label="Action">
+      <td>
         <button class="delete-btn" onclick="deleteTransaction('${exp.id}')" title="Delete transaction">
           🗑
         </button>
@@ -956,11 +834,6 @@ document.addEventListener("keydown", (e) => {
     const filterSection = document.getElementById("filter-section");
     if (filterSection && !filterSection.classList.contains("hidden")) {
       toggleFilters();
-    }
-    
-    const categoryDropdown = document.getElementById("category-dropdown");
-    if (categoryDropdown && !categoryDropdown.classList.contains("hidden")) {
-      categoryDropdown.classList.add("hidden");
     }
   }
 });
