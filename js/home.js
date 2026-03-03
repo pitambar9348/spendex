@@ -9,7 +9,76 @@ let isLoading = false;
 let filters = {
   fromDate: null,
   toDate: null,
-  category: null
+  categories: []
+};
+
+// Complete category list (matches HTML optgroups) - 130+ categories
+const CATEGORIES = {
+  "Income": [
+    "Salary", "Bonus", "Business Profit", "Freelance and Contract", 
+    "Rental Income", "Dividends and Interest", "Gifts Received", 
+    "Refunds", "Sale of Items"
+  ],
+  "Food and Drinks": [
+    "Groceries", "Fruits", "Restaurant and Dining", "Fast Food", 
+    "Snacks", "Coffee and Tea", "Food Delivery", "Alcohol and Bars", 
+    "Dietary Supplements"
+  ],
+  "Housing and Utilities": [
+    "Rent", "Mortgage", "Property Tax", "Home Insurance", 
+    "Electricity", "DTH", "Water", "Gas and Heating", 
+    "Internet and WiFi", "Cable TV", "Mobile Recharge", 
+    "Maintenance and Repairs", "Furniture and Decor", 
+    "Cleaning Services", "HOA Fees", "Garden and Lawn"
+  ],
+  "Transport": [
+    "Fuel", "Car Loan and Lease", "Vehicle Insurance", 
+    "Vehicle Maintenance", "Public Transport", "Taxi and Cab", 
+    "Parking", "Tolls", "Car Wash", "Registration Fees"
+  ],
+  "Shopping": [
+    "Clothing", "Footwear", "Accessories", "Electronics", 
+    "Beauty and Cosmetics", "Jewelry", "Sporting Goods", 
+    "Hobbies", "Online Shopping"
+  ],
+  "Health and Medical": [
+    "Doctor", "Dentist", "Eye Care", "Pharmacy", 
+    "Hospital Bill", "Health Insurance", "GYM", 
+    "Mental Health", "Wellness and Spa"
+  ],
+  "Family and Kids": [
+    "Family", "Childcare", "School Fees", "Tuition", 
+    "School Supplies", "Toys and Games", "Baby Supplies", 
+    "Child Support", "Elder Care"
+  ],
+  "Education": [
+    "Books", "Online Courses", "University Fees", 
+    "Student Loan", "Certifications", "Seminars"
+  ],
+  "Tech and Subscription": [
+    "Software", "Mobile Apps", "Cloud Storage", 
+    "VPN and Antivirus", "Hosting"
+  ],
+  "Entertainment": [
+    "Movies", "Streaming Subscription", "Music", 
+    "Video Games", "Concerts and Events", "Nightlife", 
+    "Sports Matches", "Lottery"
+  ],
+  "Travel": [
+    "Flights", "Train", "Hotels", "Travel Food", 
+    "Sightseeing", "Visa Fees", "Travel Insurance", "Souvenirs"
+  ],
+  "Financial": [
+    "Credit Card Payment", "EMI", "Bank Charges", "Investments", 
+    "Savings Transfer", "Life Insurance", "Income Tax", 
+    "Fines", "Legal Fees", "Accounting Fees"
+  ],
+  "Personal and Misc": [
+    "Personal Care", "Salon", "Laundry", "Gifts Given", 
+    "Donations", "Pet Food", "Pet Medical", "Religious Expenses", 
+    "Office Supplies", "Shipping", "Lost Items", 
+    "Emergency Fund", "Other"
+  ]
 };
 
 // ============= INITIALIZATION =============
@@ -53,6 +122,106 @@ async function loadUser() {
 
 loadUser();
 
+// ============= MULTI-SELECT CATEGORY DROPDOWN =============
+
+function initializeCategoryDropdown() {
+  const optionsContainer = document.getElementById("category-options");
+  
+  if (!optionsContainer) {
+    console.warn("Category options container not found, will initialize later");
+    return;
+  }
+  
+  let html = '';
+  
+  Object.keys(CATEGORIES).forEach(group => {
+    html += `<div class="category-group">`;
+    html += `<div class="category-group-header">${group}</div>`;
+    
+    CATEGORIES[group].forEach(category => {
+      html += `
+        <label class="category-option">
+          <input type="checkbox" value="${category}" onchange="updateCategorySelection()">
+          <span>${category}</span>
+        </label>
+      `;
+    });
+    
+    html += `</div>`;
+  });
+  
+  optionsContainer.innerHTML = html;
+}
+
+function toggleCategoryDropdown() {
+  const dropdown = document.getElementById("category-dropdown");
+  dropdown.classList.toggle("hidden");
+  
+  if (!dropdown.classList.contains("hidden")) {
+    setTimeout(() => {
+      document.addEventListener("click", closeCategoryDropdownOutside);
+    }, 0);
+  } else {
+    document.removeEventListener("click", closeCategoryDropdownOutside);
+  }
+}
+
+function closeCategoryDropdownOutside(e) {
+  const dropdown = document.getElementById("category-dropdown");
+  const trigger = document.querySelector(".multi-select-trigger");
+  
+  if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
+    dropdown.classList.add("hidden");
+    document.removeEventListener("click", closeCategoryDropdownOutside);
+  }
+}
+
+function updateCategorySelection() {
+  const checkboxes = document.querySelectorAll("#category-options input[type='checkbox']");
+  const selected = Array.from(checkboxes)
+    .filter(cb => cb.checked)
+    .map(cb => cb.value);
+  
+  filters.categories = selected;
+  
+  const display = document.getElementById("category-display");
+  if (selected.length === 0) {
+    display.textContent = "All Categories";
+  } else if (selected.length === 1) {
+    display.textContent = selected[0];
+  } else {
+    display.textContent = `${selected.length} Categories Selected`;
+  }
+  
+  applyFilters();
+}
+
+function selectAllCategories() {
+  const checkboxes = document.querySelectorAll("#category-options input[type='checkbox']");
+  checkboxes.forEach(cb => cb.checked = true);
+  updateCategorySelection();
+}
+
+function clearCategorySelection() {
+  const checkboxes = document.querySelectorAll("#category-options input[type='checkbox']");
+  checkboxes.forEach(cb => cb.checked = false);
+  updateCategorySelection();
+}
+
+function filterCategories() {
+  const searchTerm = document.getElementById("category-search").value.toLowerCase();
+  const options = document.querySelectorAll(".category-option");
+  
+  options.forEach(option => {
+    const text = option.textContent.toLowerCase();
+    if (text.includes(searchTerm)) {
+      option.style.display = "flex";
+    } else {
+      option.style.display = "none";
+    }
+  });
+}
+
 // ============= DATA LOADING =============
 
 async function loadExpensesAndTotals() {
@@ -92,7 +261,6 @@ async function loadExpensesAndTotals() {
 function applyFilters() {
   let filtered = [...allExpenses];
 
-  // Filter by date range
   if (filters.fromDate) {
     const fromDate = new Date(filters.fromDate);
     fromDate.setHours(0, 0, 0, 0);
@@ -114,10 +282,9 @@ function applyFilters() {
     });
   }
 
-  // Filter by category (exact match)
-  if (filters.category && filters.category !== "") {
+  if (filters.categories.length > 0) {
     filtered = filtered.filter(exp => 
-      exp.category === filters.category
+      filters.categories.includes(exp.category)
     );
   }
 
@@ -130,13 +297,10 @@ function applyFilters() {
 function handleFilterChange() {
   const fromDateInput = document.getElementById("filter-from-date");
   const toDateInput = document.getElementById("filter-to-date");
-  const categoryInput = document.getElementById("filter-category");
 
   filters.fromDate = fromDateInput.value || null;
   filters.toDate = toDateInput.value || null;
-  filters.category = categoryInput.value || null;
 
-  // Validate date range
   if (filters.fromDate && filters.toDate) {
     const from = new Date(filters.fromDate);
     const to = new Date(filters.toDate);
@@ -149,11 +313,10 @@ function handleFilterChange() {
 
   applyFilters();
   
-  // Show toast with filter details
-  if (filters.fromDate || filters.toDate || filters.category) {
+  if (filters.fromDate || filters.toDate || filters.categories.length > 0) {
     let filterMsg = "Filters applied";
-    if (filters.category) {
-      filterMsg += ` - ${filters.category}`;
+    if (filters.categories.length > 0) {
+      filterMsg += ` - ${filters.categories.length} ${filters.categories.length === 1 ? 'category' : 'categories'}`;
     }
     showToast(filterMsg, "success");
   }
@@ -162,12 +325,12 @@ function handleFilterChange() {
 function clearFilters() {
   document.getElementById("filter-from-date").value = "";
   document.getElementById("filter-to-date").value = "";
-  document.getElementById("filter-category").value = "";
+  clearCategorySelection();
 
   filters = {
     fromDate: null,
     toDate: null,
-    category: null
+    categories: []
   };
 
   applyFilters();
@@ -176,11 +339,14 @@ function clearFilters() {
 
 function updateFilterBadge() {
   const badge = document.getElementById("filter-badge");
+  
+  if (!badge) return;
+  
   let activeFilters = 0;
 
   if (filters.fromDate) activeFilters++;
   if (filters.toDate) activeFilters++;
-  if (filters.category) activeFilters++;
+  if (filters.categories.length > 0) activeFilters++;
 
   if (activeFilters > 0) {
     badge.innerText = activeFilters;
@@ -197,8 +363,13 @@ function toggleFilters() {
   filterSection.classList.toggle("hidden");
   
   if (filterSection.classList.contains("hidden")) {
-    filterBtn.innerHTML = '🔍 Filters <span id="filter-badge" class="filter-badge hidden">0</span>';
-    updateFilterBadge(); // Restore badge
+    const activeCount = (filters.fromDate ? 1 : 0) + (filters.toDate ? 1 : 0) + (filters.categories.length > 0 ? 1 : 0);
+    const badgeHidden = activeCount === 0 ? ' hidden' : '';
+    
+    filterBtn.innerHTML = `
+      🔍 Filters
+      <span id="filter-badge" class="filter-badge${badgeHidden}">${activeCount}</span>
+    `;
   } else {
     filterBtn.innerHTML = '✖ Close Filters';
   }
@@ -207,7 +378,7 @@ function toggleFilters() {
 // ============= EXPORT FUNCTIONALITY =============
 
 function exportToCSV() {
-  const dataToExport = filteredExpenses.length > 0 ? filteredExpenses : "";
+  const dataToExport = filteredExpenses.length > 0 ? filteredExpenses : allExpenses;
 
   if (dataToExport.length === 0) {
     showToast("No data to export", "error");
@@ -244,7 +415,7 @@ function exportToCSV() {
 }
 
 function exportToPDF() {
-  const dataToExport = filteredExpenses.length > 0 ? filteredExpenses : "";
+  const dataToExport = filteredExpenses.length > 0 ? filteredExpenses : allExpenses;
 
   if (dataToExport.length === 0) {
     showToast("No data to export", "error");
@@ -482,7 +653,7 @@ function exportToPDF() {
 }
 
 function getFiltersHTML() {
-  const hasFilters = filters.fromDate || filters.toDate || filters.category;
+  const hasFilters = filters.fromDate || filters.toDate || filters.categories.length > 0;
   
   if (!hasFilters) return '';
   
@@ -496,8 +667,8 @@ function getFiltersHTML() {
     filterText.push(`To Date: ${new Date(filters.toDate).toLocaleDateString('en-IN')}`);
   }
   
-  if (filters.category) {
-    filterText.push(`Category: ${filters.category}`);
+  if (filters.categories.length > 0) {
+    filterText.push(`Categories: ${filters.categories.join(', ')}`);
   }
   
   return `
@@ -617,7 +788,7 @@ function renderExpensesTable(data) {
   tbody.innerHTML = "";
 
   if (data.length === 0) {
-    const message = (filters.fromDate || filters.toDate || filters.category) 
+    const message = (filters.fromDate || filters.toDate || filters.categories.length > 0) 
       ? "No transactions found matching your filters"
       : "No transactions yet. Click 'Add Expense / Income' to get started!";
     
@@ -651,7 +822,7 @@ function renderExpensesTable(data) {
       <td data-label="Amount" class="${exp.amount >= 0 ? "amount-positive" : "amount-negative"}">
         ${exp.amount >= 0 ? '+' : '-'}₹${formattedAmount}
       </td>
-      <td>
+      <td data-label="Action">
         <button class="delete-btn" onclick="deleteTransaction('${exp.id}')" title="Delete transaction">
           🗑
         </button>
@@ -695,6 +866,8 @@ function updateTotals(transactions) {
 // ============= ADD EXPENSE =============
 
 document.addEventListener("DOMContentLoaded", () => {
+  initializeCategoryDropdown();
+  
   const form = document.getElementById("expense-form");
   const submitBtn = document.getElementById("save-expense-btn");
 
@@ -834,6 +1007,11 @@ document.addEventListener("keydown", (e) => {
     const filterSection = document.getElementById("filter-section");
     if (filterSection && !filterSection.classList.contains("hidden")) {
       toggleFilters();
+    }
+    
+    const categoryDropdown = document.getElementById("category-dropdown");
+    if (categoryDropdown && !categoryDropdown.classList.contains("hidden")) {
+      categoryDropdown.classList.add("hidden");
     }
   }
 });
