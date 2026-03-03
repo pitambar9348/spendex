@@ -281,61 +281,42 @@ async function loadExpensesAndTotals() {
 // ============= FILTER FUNCTIONALITY =============
 
 function applyFilters() {
-  let filtered = [...allExpenses];
+  if (!Array.isArray(allExpenses)) {
+    filteredExpenses = [];
+    renderExpensesTable([]);
+    updateTotals([]);
+    return;
+  }
 
-  // Filter by date range
+  let filtered = allExpenses.slice(); // safer copy
+
+  // DATE FILTER
   if (filters.fromDate) {
-    const fromDate = new Date(filters.fromDate);
-    fromDate.setHours(0, 0, 0, 0);
-    
-    filtered = filtered.filter(exp => {
-      const expDate = new Date(exp.expense_date);
-      expDate.setHours(0, 0, 0, 0);
-      return expDate >= fromDate;
-    });
+    const from = new Date(filters.fromDate).setHours(0,0,0,0);
+    filtered = filtered.filter(exp =>
+      new Date(exp.expense_date).setHours(0,0,0,0) >= from
+    );
   }
 
   if (filters.toDate) {
-    const toDate = new Date(filters.toDate);
-    toDate.setHours(23, 59, 59, 999);
-    
-    filtered = filtered.filter(exp => {
-      const expDate = new Date(exp.expense_date);
-      return expDate <= toDate;
-    });
+    const to = new Date(filters.toDate).setHours(23,59,59,999);
+    filtered = filtered.filter(exp =>
+      new Date(exp.expense_date).getTime() <= to
+    );
   }
 
-  // Filter by categories (multiple selection)
-  // Filter by categories (multiple selection)
-if (filters.categories.length > 0) {
-  console.log("Selected Categories:", filters.categories);
-
-  filtered = filtered.filter(exp => {
-    if (!exp.category) return false;
-
-    const expenseCategory = exp.category.toString().trim();
-    
-    const match = filters.categories.includes(expenseCategory);
-
-    console.log("Checking:", expenseCategory, "Match:", match);
-
-    return match;
-  });
-}
+  // ✅ CATEGORY FILTER (FINAL FIX)
+  if (filters.categories && filters.categories.length > 0) {
+    filtered = filtered.filter(exp =>
+      exp.category && filters.categories.includes(exp.category)
+    );
+  }
 
   filteredExpenses = filtered;
-  renderExpensesTable(filteredExpenses);
-  updateTotals(filteredExpenses);
+
+  renderExpensesTable(filtered);
+  updateTotals(filtered);
   updateFilterBadge();
-  
-  // Log for debugging
-  console.log('Applied filters:', {
-    fromDate: filters.fromDate,
-    toDate: filters.toDate,
-    categories: filters.categories,
-    totalExpenses: allExpenses.length,
-    filteredCount: filtered.length
-  });
 }
 
 function handleFilterChange() {
@@ -1074,6 +1055,7 @@ setInterval(() => {
     loadExpensesAndTotals();
   }
 }, 5 * 60 * 1000);
+
 
 
 
