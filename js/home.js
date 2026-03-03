@@ -305,9 +305,14 @@ function applyFilters() {
 
   // Filter by categories (multiple selection)
   if (filters.categories.length > 0) {
-    filtered = filtered.filter(exp => {
-      // Check if expense category matches any selected category
-      return exp.category && filters.categories.includes(exp.category);
+  filtered = filtered.filter(exp => {
+    if (!exp.category) return false;
+      // Trim + normalize comparison to avoid spacing / case issues
+    const expenseCategory = exp.category.trim().toLowerCase();
+  
+    return filters.categories.some(selected =>
+      expenseCategory === selected.trim().toLowerCase()
+      );
     });
   }
 
@@ -1062,3 +1067,4 @@ setInterval(() => {
     loadExpensesAndTotals();
   }
 }, 5 * 60 * 1000);
+
