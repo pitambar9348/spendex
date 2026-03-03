@@ -182,7 +182,10 @@ function updateCategorySelection() {
   
   filters.categories = selected;
   
+  // Update display text
   const display = document.getElementById("category-display");
+  if (!display) return; // Guard clause if element doesn't exist
+  
   if (selected.length === 0) {
     display.textContent = "All Categories";
   } else if (selected.length === 1) {
@@ -203,7 +206,20 @@ function selectAllCategories() {
 function clearCategorySelection() {
   const checkboxes = document.querySelectorAll("#category-options input[type='checkbox']");
   checkboxes.forEach(cb => cb.checked = false);
-  updateCategorySelection();
+  
+  // Reset the display text
+  const display = document.getElementById("category-display");
+  if (display) {
+    display.textContent = "All Categories";
+  }
+  
+  // Reset filter state
+  filters.categories = [];
+  
+  // Apply filters if we have data
+  if (allExpenses.length > 0) {
+    applyFilters();
+  }
 }
 
 function filterCategories() {
@@ -321,10 +337,17 @@ function handleFilterChange() {
 }
 
 function clearFilters() {
-  document.getElementById("filter-from-date").value = "";
-  document.getElementById("filter-to-date").value = "";
+  // Clear date inputs
+  const fromDate = document.getElementById("filter-from-date");
+  const toDate = document.getElementById("filter-to-date");
+  
+  if (fromDate) fromDate.value = "";
+  if (toDate) toDate.value = "";
+  
+  // Clear category selection
   clearCategorySelection();
 
+  // Reset filter state
   filters = {
     fromDate: null,
     toDate: null,
