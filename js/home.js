@@ -244,30 +244,48 @@ function filterCategories() {
 
 async function loadExpensesAndTotals() {
   if (isLoading) return;
-  
+
   isLoading = true;
   const tbody = document.getElementById("expense-body");
-  tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; opacity: 0.5;">Loading...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;opacity:.5;">Loading...</td></tr>';
 
   try {
-    const { data, error } = await supabaseClient
+    let query = supabaseClient
       .from("expenses")
       .select("*")
       .eq("user_id", currentUser.id)
       .order("expense_date", { ascending: false });
 
+    // ✅ Apply category filter at DB level
+    if (filters.categories && filters.categories.length > 0) {
+      query = query.in("category", filters.categories);
+    }
+
+    // ✅ Apply date filters at DB level
+    if (filters.fromDate) {
+      query = query.gte("expense_date", filters.fromDate);
+    }
+
+    if (filters.toDate) {
+      query = query.lte("expense_date", filters.toDate);
+    }
+
+    const { data, error } = await query;
+
     if (error) {
-      console.error("Load expenses error:", error);
       showToast("Failed to load expenses", "error");
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--danger);">Failed to load data</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:red;">Failed</td></tr>';
       return;
     }
 
     allExpenses = data || [];
-    applyFilters();
+    filteredExpenses = allExpenses;
+
+    renderExpensesTable(filteredExpenses);
+    updateTotals(filteredExpenses);
+    updateFilterBadge();
 
   } catch (error) {
-    console.error("Load expenses error:", error);
     showToast("Something went wrong", "error");
   } finally {
     isLoading = false;
@@ -277,49 +295,7 @@ async function loadExpensesAndTotals() {
 // ============= FILTER FUNCTIONALITY =============
 
 function applyFilters() {
-
-  if (!allExpenses || allExpenses.length === 0) {
-    renderExpensesTable([]);
-    updateTotals([]);
-    return;
-  }
-
-  let filtered = [...allExpenses];
-
-  // Date filter
-  if (filters.fromDate) {
-    const from = new Date(filters.fromDate);
-    from.setHours(0, 0, 0, 0);
-
-    filtered = filtered.filter(exp => {
-      const d = new Date(exp.expense_date);
-      d.setHours(0, 0, 0, 0);
-      return d >= from;
-    });
-  }
-
-  if (filters.toDate) {
-    const to = new Date(filters.toDate);
-    to.setHours(23, 59, 59, 999);
-
-    filtered = filtered.filter(exp => {
-      const d = new Date(exp.expense_date);
-      return d <= to;
-    });
-  }
-
-  // ✅ CATEGORY FILTER (Corrected Properly)
-  if (filters.categories && filters.categories.length > 0) {
-    filtered = filtered.filter(exp => 
-      exp.category && filters.categories.includes(exp.category)
-    );
-  }
-
-  filteredExpenses = filtered;
-
-  renderExpensesTable(filteredExpenses);
-  updateTotals(filteredExpenses);
-  updateFilterBadge();
+  loadExpensesAndTotals();
 }
 
 function handleFilterChange() {
@@ -1058,6 +1034,7 @@ setInterval(() => {
     loadExpensesAndTotals();
   }
 }, 5 * 60 * 1000);
+
 
 
 
